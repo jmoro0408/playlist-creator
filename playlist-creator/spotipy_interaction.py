@@ -1,8 +1,8 @@
 import configparser
 from pathlib import Path
 
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+import spotipy # type: ignore
+from spotipy.oauth2 import SpotifyOAuth # type: ignore
 
 
 def import_config() -> tuple:
