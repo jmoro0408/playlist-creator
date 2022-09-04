@@ -1,7 +1,9 @@
-from spotipy_interaction import SpotipyClient
-from pathlib import Path
 import configparser
+from pathlib import Path
+
 import pytest
+from spotipy_interaction import SpotipyClient
+
 
 @pytest.fixture
 def client_fixture():
@@ -14,9 +16,11 @@ def client_fixture():
 
 
 def test_spotipy_login(client_fixture):
-    artist= 'The Beatles'
-    track= 'Yellow Submarine'
-    track_id = client_fixture.search(q='artist:' + artist + ' track:' + track, type='track')
-    track_id = track_id['tracks']['items'][0]['id']
-    track_json = (client_fixture.tracks([track_id]))
+    artist = "The Beatles"
+    track = "Yellow Submarine"
+    track_id = client_fixture.search(
+        q="artist:" + artist + " track:" + track, type="track"
+    )
+    track_id = track_id["tracks"]["items"][0]["id"]
+    track_json = client_fixture.tracks([track_id])
     assert track_json["tracks"][0]["artists"][0]["name"] == artist

@@ -1,7 +1,8 @@
 import configparser
+from pathlib import Path
+
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from pathlib import Path
 
 
 def import_config() -> tuple:
@@ -22,13 +23,15 @@ class SpotipyClient(object):
     def spotify_auth(self):
         redirect_uri = "http://localhost:8888/callback"
         scope = "user-library-read"
-        return spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope,
+        return spotipy.Spotify(
+            auth_manager=SpotifyOAuth(
+                scope=scope,
                 client_id=self.client_id,
                 client_secret=self.client_secret,
-                redirect_uri=redirect_uri))
+                redirect_uri=redirect_uri,
+            )
+        )
 
-if __name__== "__main__":
+
+if __name__ == "__main__":
     pass
-
-
-
