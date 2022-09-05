@@ -50,7 +50,7 @@ def test_get_user_playlist_track_info(client_fixture):
         errors.append("first item in playlist track info not a tuple")
     assert len(errors) == 0
 
-def test_get_track_features(client_fixture):
+def test_get_track_features_single_track(client_fixture):
     errors = []
     track_id = "46lFttIf5hnUZMGvjK0Wxo" #galantis - Runaway (U&I)
     track_features = client_fixture.get_track_features(track_id)
@@ -61,5 +61,21 @@ def test_get_track_features(client_fixture):
         errors.append(_msg)
     if track_features[0]["duration_ms"] != 227074:
         _msg = f"Duration of {track_features[0]['duration_ms']} ms returned, expected 227074 ms"
+        errors.append(_msg)
+    assert len(errors) == 0
+
+def test_get_track_features_multiple_tracks(client_fixture):
+    errors = []
+    first_playlist_name = list(client_fixture.get_users_playlists_names())[0]
+    first_playlist_id = client_fixture.get_users_playlists_names()[first_playlist_name]
+    first_track_id = client_fixture.get_user_playlist_track_info(first_playlist_id)[0][2]
+    second_track_id = client_fixture.get_user_playlist_track_info(first_playlist_id)[1][2]
+    track_ids = [first_track_id,second_track_id]
+    track_features = client_fixture.get_track_features(track_ids)
+    if not isinstance(track_features, list):
+        _msg = f"{type(track_features)} returned, expected list"
+        errors.append(_msg)
+    if len(track_features) != 2:
+        _msg = f"{len(track_features)} tracks returned, expected 2"
         errors.append(_msg)
     assert len(errors) == 0

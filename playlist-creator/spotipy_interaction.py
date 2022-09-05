@@ -64,8 +64,8 @@ class SpotipyClient(object):
             playlist_info.append(_result)
         return playlist_info
 
-    def get_track_features(self, track_id: str):
-        return self.authorize.audio_features(tracks=track_id)
+    def get_track_features(self, track_ids: list):
+        return self.authorize.audio_features(tracks=track_ids)
 
 
 if __name__ == "__main__":
@@ -73,7 +73,9 @@ if __name__ == "__main__":
     sp = SpotipyClient(client_id, client_secret)
 
     first_playlist_name = list(sp.get_users_playlists_names())[0]
-    test_playlist_id = sp.get_users_playlists_names()[first_playlist_name]
-    test_track = sp.get_user_playlist_track_info(test_playlist_id)[0]
-    test_track_id = test_track[2]
-    print(sp.get_track_features(test_track_id))
+    first_playlist_id = sp.get_users_playlists_names()[first_playlist_name]
+    first_track_id = sp.get_user_playlist_track_info(first_playlist_id)[0][2]
+    second_track_id = sp.get_user_playlist_track_info(first_playlist_id)[1][2]
+
+    track_ids = [first_track_id,second_track_id]
+    print(sp.get_track_features(track_ids))
