@@ -1,7 +1,8 @@
-from spotipy_interaction import import_config, SpotipyClient
 import pandas as pd
+from spotipy_interaction import SpotipyClient, import_config
 
-def build_liked_song_df(sp:SpotipyClient) -> pd.DataFrame:
+
+def build_liked_song_df(sp: SpotipyClient) -> pd.DataFrame:
     """Return a dataframe with the users liked tracks,
     with artist, duration, and audio features for each track
 
@@ -11,7 +12,7 @@ def build_liked_song_df(sp:SpotipyClient) -> pd.DataFrame:
     Returns:
         pd.DataFrame: dataframe with track details
     """
-    liked_tracks_json =  sp.get_users_liked_tracks()
+    liked_tracks_json = sp.get_users_liked_tracks()
     return sp.parse_users_liked_tracks(liked_tracks_json)
 
 

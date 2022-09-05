@@ -31,17 +31,20 @@ def test_spotipy_login(client_fixture):
 
 def test_get_users_liked_tracks(client_fixture):
     limit = 10
-    assert len(client_fixture.get_users_liked_tracks(limit = limit)["items"]) == 10
+    assert len(client_fixture.get_users_liked_tracks(limit=limit)["items"]) == 10
+
 
 def test_get_users_playlists_names_type(client_fixture):
     assert isinstance(client_fixture.get_users_playlists_names(), dict)
 
+
 def test_get_users_playlists_names_not_empty(client_fixture):
     assert len(client_fixture.get_users_playlists_names()) > 0
 
+
 def test_get_user_playlist_track_info(client_fixture):
     errors = []
-    first_playlist_name  = list(client_fixture.get_users_playlists_names())[0]
+    first_playlist_name = list(client_fixture.get_users_playlists_names())[0]
     test_playlist_id = client_fixture.get_users_playlists_names()[first_playlist_name]
     playlist_track_info = client_fixture.get_user_playlist_track_info(test_playlist_id)
     if not isinstance(playlist_track_info, list):
@@ -50,9 +53,10 @@ def test_get_user_playlist_track_info(client_fixture):
         errors.append("first item in playlist track info not a tuple")
     assert len(errors) == 0
 
+
 def test_get_track_features_single_track(client_fixture):
     errors = []
-    track_id = "46lFttIf5hnUZMGvjK0Wxo" #galantis - Runaway (U&I)
+    track_id = "46lFttIf5hnUZMGvjK0Wxo"  # galantis - Runaway (U&I)
     track_features = client_fixture.get_track_features(track_id)
     if len(track_features) != 1:
         errors.append(f"{len(track_features)} track returned, expected 1")
@@ -64,13 +68,18 @@ def test_get_track_features_single_track(client_fixture):
         errors.append(_msg)
     assert len(errors) == 0
 
+
 def test_get_track_features_multiple_tracks(client_fixture):
     errors = []
     first_playlist_name = list(client_fixture.get_users_playlists_names())[0]
     first_playlist_id = client_fixture.get_users_playlists_names()[first_playlist_name]
-    first_track_id = client_fixture.get_user_playlist_track_info(first_playlist_id)[0][2]
-    second_track_id = client_fixture.get_user_playlist_track_info(first_playlist_id)[1][2]
-    track_ids = [first_track_id,second_track_id]
+    first_track_id = client_fixture.get_user_playlist_track_info(first_playlist_id)[0][
+        2
+    ]
+    second_track_id = client_fixture.get_user_playlist_track_info(first_playlist_id)[1][
+        2
+    ]
+    track_ids = [first_track_id, second_track_id]
     track_features = client_fixture.get_track_features(track_ids)
     if not isinstance(track_features, list):
         _msg = f"{type(track_features)} returned, expected list"
