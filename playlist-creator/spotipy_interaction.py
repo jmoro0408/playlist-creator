@@ -4,6 +4,7 @@ from pathlib import Path
 import spotipy # type: ignore
 from spotipy.oauth2 import SpotifyOAuth # type: ignore
 
+#TODO Authorization flow is messy
 
 def import_config() -> tuple:
     config = configparser.ConfigParser()
@@ -20,9 +21,8 @@ class SpotipyClient(object):
         self.client_secret = client_secret
         self.authorize = self.spotify_auth()
 
-    def spotify_auth(self):
+    def spotify_auth(self, scope = "user-library-read"):
         redirect_uri = "http://localhost:8888/callback"
-        scope = "user-library-read"
         return spotipy.Spotify(
             auth_manager=SpotifyOAuth(
                 scope=scope,
@@ -33,5 +33,17 @@ class SpotipyClient(object):
         )
 
 
+    def get_users_liked_tracks(self, limit):
+        return self.authorize.current_user_saved_tracks(limit= limit)
+
+
+    def get_users_playlists(self):
+        pass
+
+
 if __name__ == "__main__":
-    pass
+    client_id, client_secret = import_config()
+    sp = SpotipyClient(client_id, client_secret)
+
+    liked_songs = (sp.get_users_liked_tracks(10))
+    print("test")
