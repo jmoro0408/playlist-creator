@@ -12,7 +12,7 @@ def build_liked_song_df(sp:SpotipyClient) -> pd.DataFrame:
         pd.DataFrame: dataframe with track details
     """
     liked_tracks_json =  sp.get_users_liked_tracks()
-    return liked_tracks_json
+    return sp.parse_users_liked_tracks(liked_tracks_json)
 
 
 if __name__ == "__main__":
@@ -20,4 +20,4 @@ if __name__ == "__main__":
     sp = SpotipyClient(client_id, client_secret)
 
     liked_songs_test = build_liked_song_df(sp)
-    print("test")
+    print(liked_songs_test)
