@@ -33,8 +33,20 @@ class SpotipyClient(object):
             )
         )
 
-    def get_users_liked_tracks(self, limit: int):
+    def get_users_liked_tracks(self, limit: int = 10):
         return self.authorize.current_user_saved_tracks(limit=limit)
+
+    def parse_users_liked_tracks(self, user_liked_songs_json: dict):
+        # TODO lots of repeated code from playlist track info func
+        liked_song_info = []
+        num_tracks = len(user_liked_songs_json['items'])
+        for i in range(num_tracks):
+            _track_name = user_liked_songs_json['items'][i]['track']['name']
+            _track_id = user_liked_songs_json['items'][i]['track']['id']
+            _artist_name = user_liked_songs_json['items'][i]['track']['artists'][0]['name'] # 0 may fail is more than 1 artist
+            _result = (_track_name, _artist_name, _track_id)
+            liked_song_info.append(_result)
+        return liked_song_info
 
     def get_users_playlists_names(self) -> dict:
         _sp = self.authorize
@@ -69,13 +81,4 @@ class SpotipyClient(object):
 
 
 if __name__ == "__main__":
-    client_id, client_secret = import_config()
-    sp = SpotipyClient(client_id, client_secret)
-
-    first_playlist_name = list(sp.get_users_playlists_names())[0]
-    first_playlist_id = sp.get_users_playlists_names()[first_playlist_name]
-    first_track_id = sp.get_user_playlist_track_info(first_playlist_id)[0][2]
-    second_track_id = sp.get_user_playlist_track_info(first_playlist_id)[1][2]
-
-    track_ids = [first_track_id,second_track_id]
-    print(sp.get_track_features(track_ids))
+    pass
