@@ -48,6 +48,7 @@ class SpotipyClient(object):
         return user_playlists_name_id_dict
 
     def get_user_playlist_track_info(self, playlist_id: str):
+        #TODO named tuples for track info would be clearer
         _sp = self.authorize
         playlist_info = [] #to hold a tuple of (track_name, artist_name, track_id) for eac htrack in playlist
         results = _sp.playlist(playlist_id, fields="tracks,artists")
@@ -60,6 +61,8 @@ class SpotipyClient(object):
             playlist_info.append(_result)
         return playlist_info
 
+    def get_track_features(self, track_id:str):
+        return self.authorize.audio_features(tracks=track_id)
 
 if __name__ == "__main__":
     client_id, client_secret = import_config()
@@ -67,4 +70,6 @@ if __name__ == "__main__":
 
     first_playlist_name  = list(sp.get_users_playlists_names())[0]
     test_playlist_id = sp.get_users_playlists_names()[first_playlist_name]
-    print(sp.get_user_playlist_track_info(test_playlist_id))
+    test_track = sp.get_user_playlist_track_info(test_playlist_id)[0]
+    test_track_id = test_track[2]
+    print(sp.get_track_features(test_track_id))

@@ -49,3 +49,17 @@ def test_get_user_playlist_track_info(client_fixture):
     if not isinstance(playlist_track_info[0], tuple):
         errors.append("first item in playlist track info not a tuple")
     assert len(errors) == 0
+
+def test_get_track_features(client_fixture):
+    errors = []
+    track_id = "46lFttIf5hnUZMGvjK0Wxo" #galantis - Runaway (U&I)
+    track_features = client_fixture.get_track_features(track_id)
+    if len(track_features) != 1:
+        errors.append(f"{len(track_features)} track returned, expected 1")
+    if track_features[0]["danceability"] != 0.506:
+        _msg = f"Danceability of {track_features[0]['danceability']} returned, expected 0.506"
+        errors.append(_msg)
+    if track_features[0]["duration_ms"] != 227074:
+        _msg = f"Duration of {track_features[0]['duration_ms']} ms returned, expected 227074 ms"
+        errors.append(_msg)
+    assert len(errors) == 0
