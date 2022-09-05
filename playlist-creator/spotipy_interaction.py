@@ -33,17 +33,38 @@ class SpotipyClient(object):
         )
 
 
-    def get_users_liked_tracks(self, limit):
+    def get_users_liked_tracks(self, limit:int):
         return self.authorize.current_user_saved_tracks(limit= limit)
 
 
-    def get_users_playlists(self):
-        pass
+    def get_users_playlists_names(self) -> dict:
+        _sp = self.authorize
+        playlists = _sp.current_user_playlists()
+        user_id = _sp.me()['id']
+        user_playlists_name_id_dict = {}
+        for playlist in playlists['items']:
+                if playlist['owner']['id'] == user_id:
+                    user_playlists_name_id_dict[playlist['name']] =playlist['id']
+        return user_playlists_name_id_dict
+
+    def get_user_playlist_track_info(self, playlist_id: str):
+        _sp = self.authorize
+        playlist_info = [] #to hold a tuple of (track_name, artist_name, track_id) for eac htrack in playlist
+        results = _sp.playlist(playlist_id, fields="tracks,artists")
+        num_tracks = len(results["tracks"]["items"])
+        for i in range(num_tracks):
+            _track_name = results['tracks']['items'][i]['track']['name']
+            _track_id = results['tracks']['items'][i]['track']['id']
+            _artist_name = results['tracks']['items'][i]['track']['artists'][0]['name'] #2nd 0 might fail if more than one artist on track
+            _result = (_track_name,_artist_name,_track_id)
+            playlist_info.append(_result)
+        return playlist_info
 
 
 if __name__ == "__main__":
     client_id, client_secret = import_config()
     sp = SpotipyClient(client_id, client_secret)
 
-    liked_songs = (sp.get_users_liked_tracks(10))
-    print("test")
+    first_playlist_name  = list(sp.get_users_playlists_names())[0]
+    test_playlist_id = sp.get_users_playlists_names()[first_playlist_name]
+    print(sp.get_user_playlist_track_info(test_playlist_id))

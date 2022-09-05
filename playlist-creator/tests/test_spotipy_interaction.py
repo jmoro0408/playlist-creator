@@ -33,5 +33,19 @@ def test_get_users_liked_tracks(client_fixture):
     limit = 10
     assert len(client_fixture.get_users_liked_tracks(limit = limit)["items"]) == 10
 
-def test_get_users_playlists(client_fixture):
-    pass
+def test_get_users_playlists_names_type(client_fixture):
+    assert isinstance(client_fixture.get_users_playlists_names(), dict)
+
+def test_get_users_playlists_names_not_empty(client_fixture):
+    assert len(client_fixture.get_users_playlists_names()) > 0
+
+def test_get_user_playlist_track_info(client_fixture):
+    errors = []
+    first_playlist_name  = list(client_fixture.get_users_playlists_names())[0]
+    test_playlist_id = client_fixture.get_users_playlists_names()[first_playlist_name]
+    playlist_track_info = client_fixture.get_user_playlist_track_info(test_playlist_id)
+    if not isinstance(playlist_track_info, list):
+        errors.append("track info object not a list")
+    if not isinstance(playlist_track_info[0], tuple):
+        errors.append("first item in playlist track info not a tuple")
+    assert len(errors) == 0
