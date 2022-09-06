@@ -1,10 +1,10 @@
 import configparser
 from pathlib import Path
 
-import pytest
-from spotipy_interaction import SpotipyClient
-from build_song_df import build_liked_song_df
 import pandas as pd
+import pytest
+from build_song_df import build_liked_song_df, build_playlists_df
+from spotipy_interaction import SpotipyClient
 
 
 @pytest.fixture
@@ -52,5 +52,17 @@ def test_build_liked_song_df(client_fixture):
         errors.append(_msg)
     if len(extra_columns) != 0:
         _msg = f"{extra_columns} columns were found in the dataframe that were not expected"
+        errors.append(_msg)
+    assert len(errors) == 0
+
+
+def test_build_playlists_df(client_fixture):
+    playlist_df = build_playlists_df(client_fixture)
+    errors = []
+    if not isinstance(playlist_df, pd.DataFrame):
+        _msg = f"{playlist_df} returned, expected dataframe"
+        errors.append(_msg)
+    if playlist_df.empty:
+        _msg = "empty dataframe returned"
         errors.append(_msg)
     assert len(errors) == 0

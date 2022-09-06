@@ -1,5 +1,6 @@
 import configparser
 from pathlib import Path
+from typing import Any
 
 import spotipy  # type: ignore
 from spotipy.oauth2 import SpotifyOAuth  # type: ignore
@@ -50,7 +51,7 @@ class SpotipyClient(object):
             liked_song_info.append(_result)
         return liked_song_info
 
-    def get_users_playlists_names(self) -> dict:
+    def get_users_playlists_info(self) -> dict:
         _sp = self.authorize
         playlists = _sp.current_user_playlists()
         user_id = _sp.me()["id"]
@@ -60,7 +61,9 @@ class SpotipyClient(object):
                 user_playlists_name_id_dict[playlist["name"]] = playlist["id"]
         return user_playlists_name_id_dict
 
-    def get_user_playlist_track_info(self, playlist_id: str):
+    def get_user_playlist_track_info(
+        self, playlist_id: str
+    ) -> list[tuple[Any, Any, Any]]:
         # TODO named tuples for track info would be clearer
         _sp = self.authorize
         playlist_info = (
@@ -75,7 +78,7 @@ class SpotipyClient(object):
                 "name"
             ]  # 2nd 0 might fail if more than one artist on track
             _result = (_track_name, _artist_name, _track_id)
-            playlist_info.append(_result)
+            playlist_info.append(_result)  # type: ignore
         return playlist_info
 
     def get_track_features(self, track_ids: list):
