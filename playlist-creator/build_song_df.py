@@ -1,8 +1,8 @@
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
 from spotipy_interaction import SpotipyClient, import_config
-from pathlib import Path
 
 
 def explode_results_list(result_list: list[tuple[Any, Any, Any]]) -> tuple:
@@ -55,7 +55,7 @@ def build_playlists_df(sp: SpotipyClient) -> pd.DataFrame:
         playlist_song_df["playlist_name"] = playlist_name
         playlist_dfs_list.append(playlist_song_df)
     playlists_df = pd.concat(playlist_dfs_list)
-    playlists_df = playlists_df.reset_index(drop = True)
+    playlists_df = playlists_df.reset_index(drop=True)
     return playlists_df
 
 
@@ -66,4 +66,3 @@ if __name__ == "__main__":
     playlists_df = build_playlists_df(sp)
     liked_songs_df.to_pickle(Path("playlist-creator", "data", "liked_songs_df.pkl"))
     playlists_df.to_pickle(Path("playlist-creator", "data", "playlist_df.pkl"))
-
