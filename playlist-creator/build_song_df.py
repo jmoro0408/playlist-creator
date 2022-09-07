@@ -1,5 +1,5 @@
-from typing import Any
 import itertools
+from typing import Any
 
 import pandas as pd
 from spotipy_interaction import SpotipyClient, import_config
@@ -38,6 +38,7 @@ def build_liked_song_df(sp: SpotipyClient) -> pd.DataFrame:
             list_to_split[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)]
             for i in range(chunk_size)
         )
+
     liked_tracks_json = sp.get_users_liked_tracks()
     parsed_liked_tracks_json = sp.parse_users_liked_tracks(liked_tracks_json)
     track_names, artist_names, track_ids = explode_results_list(
