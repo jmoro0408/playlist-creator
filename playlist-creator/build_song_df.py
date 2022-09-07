@@ -1,5 +1,5 @@
-from pathlib import Path
 from typing import Any
+import itertools
 
 import pandas as pd
 from spotipy_interaction import SpotipyClient, import_config
@@ -12,9 +12,12 @@ def explode_results_list(result_list: list[tuple[Any, Any, Any]]) -> tuple:
     return track_names, artist_names, track_ids
 
 
-def build_liked_song_df(sp: SpotipyClient, limit: int = 10) -> pd.DataFrame:
+def build_liked_song_df(sp: SpotipyClient) -> pd.DataFrame:
     """Return a dataframe with the users liked tracks,
-    with track name, artist, duration, and audio features for each track
+    with track name, artist, duration, and audio features for each track.
+    The web API only allows audio features requests of up to 100 tracks
+    at a time, so the full liked songs json has to be split into 100
+    track chunks before querying, then combined together.
 
     Args:
         sp (SpotipyClient): authorised spotipy client object
@@ -22,15 +25,33 @@ def build_liked_song_df(sp: SpotipyClient, limit: int = 10) -> pd.DataFrame:
     Returns:
         pd.DataFrame: dataframe with track details
     """
-    liked_tracks_json = sp.get_users_liked_tracks(limit=limit)
-    # build df for one song first
+
+    def split_into_chunks(list_to_split, chunk_size):
+        """
+        This is stolen from a SO post:
+        https://stackoverflow.com/questions/2130016/
+        splitting-a-list-into-n-parts-of-approximately-equal-length
+        and just splits a list into equal chunks of a specified size
+        """
+        k, m = divmod(len(list_to_split), chunk_size)
+        return (
+            list_to_split[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)]
+            for i in range(chunk_size)
+        )
+    liked_tracks_json = sp.get_users_liked_tracks()
     parsed_liked_tracks_json = sp.parse_users_liked_tracks(liked_tracks_json)
-    # get audio features for tracks
     track_names, artist_names, track_ids = explode_results_list(
         parsed_liked_tracks_json
     )
-    audio_features = sp.get_track_features(track_ids)
-    liked_song_df = pd.DataFrame(audio_features)
+    batch_size = 100  # API only allows up to 100 requests per batch
+    track_id_chunks = list(split_into_chunks(track_ids, batch_size))
+    audio_features = []
+    for chunk in track_id_chunks:
+        audio_features.append(sp.get_track_features(chunk))
+    audio_features_flattened = list(
+        itertools.chain.from_iterable(audio_features)
+    )  # flattening list for df creation
+    liked_song_df = pd.DataFrame(audio_features_flattened)
     liked_song_df["artist_names"] = artist_names
     liked_song_df["track_names"] = track_names
     return liked_song_df
@@ -62,7 +83,7 @@ def build_playlists_df(sp: SpotipyClient) -> pd.DataFrame:
 if __name__ == "__main__":
     client_id, client_secret = import_config()
     sp = SpotipyClient(client_id, client_secret)
-    liked_songs_df = build_liked_song_df(sp, 20)
-    playlists_df = build_playlists_df(sp)
-    liked_songs_df.to_pickle(Path("playlist-creator", "data", "liked_songs_df.pkl"))
-    playlists_df.to_pickle(Path("playlist-creator", "data", "playlist_df.pkl"))
+    liked_songs_df = build_liked_song_df(sp)
+    # playlists_df = build_playlists_df(sp)
+    # liked_songs_df.to_pickle(Path("playlist-creator", "data", "liked_songs_df.pkl"))
+    # playlists_df.to_pickle(Path("playlist-creator", "data", "playlist_df.pkl"))
