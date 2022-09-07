@@ -35,6 +35,8 @@ class SpotipyClient(object):
         )
 
     def get_users_liked_tracks(self):
+        # TODO this just gets all users liked tracks,
+        #would be good if it had functionality to get N tracks as well
         sp = self.authorize
         results = sp.current_user_saved_tracks()
         tracks = results["items"]
