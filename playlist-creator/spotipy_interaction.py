@@ -34,17 +34,23 @@ class SpotipyClient(object):
             )
         )
 
-    def get_users_liked_tracks(self, limit: int = 10):
-        return self.authorize.current_user_saved_tracks(limit=limit)
+    def get_users_liked_tracks(self):
+        sp = self.authorize
+        results = sp.current_user_saved_tracks()
+        tracks = results["items"]
+        while results["next"]:
+            results = sp.next(results)
+            tracks.extend(results["items"])
+        return tracks
 
     def parse_users_liked_tracks(self, user_liked_songs_json: dict):
         # TODO lots of repeated code from playlist track info func
         liked_song_info = []
-        num_tracks = len(user_liked_songs_json["items"])
+        num_tracks = len(user_liked_songs_json)
         for i in range(num_tracks):
-            _track_name = user_liked_songs_json["items"][i]["track"]["name"]
-            _track_id = user_liked_songs_json["items"][i]["track"]["id"]
-            _artist_name = user_liked_songs_json["items"][i]["track"]["artists"][0][
+            _track_name = user_liked_songs_json[i]["track"]["name"]
+            _track_id = user_liked_songs_json[i]["track"]["id"]
+            _artist_name = user_liked_songs_json[i]["track"]["artists"][0][
                 "name"
             ]  # 0 may fail is more than 1 artist
             _result = (_track_name, _artist_name, _track_id)
