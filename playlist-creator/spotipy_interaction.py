@@ -1,4 +1,5 @@
 import configparser
+import itertools
 from pathlib import Path
 from typing import Any
 
@@ -6,6 +7,7 @@ import spotipy  # type: ignore
 from spotipy.oauth2 import SpotifyOAuth  # type: ignore
 
 # TODO Authorization flow is messy
+# TODO spotipy client class does too much
 
 
 def import_config() -> tuple:
@@ -15,6 +17,20 @@ def import_config() -> tuple:
     _client_id = config["SPOTIFY"]["SPOTIPY_CLIENT_ID"]
     _client_secret = config["SPOTIFY"]["SPOTIPY_CLIENT_SECRET"]
     return _client_id, _client_secret
+
+
+def split_into_chunks(list_to_split, chunk_size):
+    """
+    This is stolen from a SO post:
+    https://stackoverflow.com/questions/2130016/
+    splitting-a-list-into-n-parts-of-approximately-equal-length
+    and just splits a list into equal chunks of a specified size
+    """
+    k, m = divmod(len(list_to_split), chunk_size)
+    return (
+        list_to_split[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)]
+        for i in range(chunk_size)
+    )
 
 
 class SpotipyClient(object):
@@ -34,9 +50,7 @@ class SpotipyClient(object):
             )
         )
 
-    def get_users_liked_tracks(self):
-        # TODO this just gets all users liked tracks,
-        # would be good if it had functionality to get N tracks as well
+    def get_users_all_liked_tracks(self) -> list[dict]:
         sp = self.authorize
         results = sp.current_user_saved_tracks()
         tracks = results["items"]
@@ -45,9 +59,27 @@ class SpotipyClient(object):
             tracks.extend(results["items"])
         return tracks
 
-    def parse_users_liked_tracks(self, user_liked_songs_json: dict):
+    def get_user_liked_tracks_limited(self, limit: int = 10) -> list[dict]:
+        sp = self.authorize
+        track_limit = 50  # set by spotify API
+        num_batches, leftovers = divmod(limit, track_limit)  # 50 song paginated result
+        offset = 0
+        user_saved_tracks_chunked = []
+        for i in range(num_batches):
+            offset = offset + (i * track_limit)
+            results = sp.current_user_saved_tracks(limit=track_limit, offset=offset)[
+                "items"
+            ]
+            user_saved_tracks_chunked.append(results)
+        if leftovers > 0:
+            user_saved_tracks_chunked.append(
+                sp.current_user_saved_tracks(limit=leftovers, offset=offset)["items"]
+            )
+        return list(itertools.chain.from_iterable(user_saved_tracks_chunked))
+
+    def parse_users_liked_tracks(self, user_liked_songs_json: list[dict[Any,Any]]) -> list[tuple[Any, Any,Any]]:
         # TODO lots of repeated code from playlist track info func
-        liked_song_info = []
+        liked_song_info: list[tuple[Any, Any,Any]] = []
         num_tracks = len(user_liked_songs_json)
         for i in range(num_tracks):
             _track_name = user_liked_songs_json[i]["track"]["name"]
