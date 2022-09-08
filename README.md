@@ -1,2 +1,2 @@
 # playlist-creator
-Uses ML to automatically create playlists from your Spotify liked songs. 
+Uses ML to suggest playlists that your liked songs may fit in to. 
