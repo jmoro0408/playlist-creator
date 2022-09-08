@@ -2,10 +2,10 @@ import itertools
 from typing import Any
 
 import pandas as pd
-from spotipy_interaction import SpotipyClient, import_config
+from spotipy_interaction import SpotipyClient, import_config, split_into_chunks
 
 
-def explode_results_list(result_list: list[tuple[Any, Any, Any]]) -> tuple:
+def explode_results_list(result_list: list[tuple[Any,Any,Any]]) -> tuple:
     track_names = [x[0] for x in result_list]
     artist_names = [x[1] for x in result_list]
     track_ids = [x[2] for x in result_list]
@@ -26,20 +26,7 @@ def build_liked_song_df(sp: SpotipyClient) -> pd.DataFrame:
         pd.DataFrame: dataframe with track details
     """
 
-    def split_into_chunks(list_to_split, chunk_size):
-        """
-        This is stolen from a SO post:
-        https://stackoverflow.com/questions/2130016/
-        splitting-a-list-into-n-parts-of-approximately-equal-length
-        and just splits a list into equal chunks of a specified size
-        """
-        k, m = divmod(len(list_to_split), chunk_size)
-        return (
-            list_to_split[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)]
-            for i in range(chunk_size)
-        )
-
-    liked_tracks_json = sp.get_users_liked_tracks()
+    liked_tracks_json = sp.get_users_all_liked_tracks()
     parsed_liked_tracks_json = sp.parse_users_liked_tracks(liked_tracks_json)
     track_names, artist_names, track_ids = explode_results_list(
         parsed_liked_tracks_json
