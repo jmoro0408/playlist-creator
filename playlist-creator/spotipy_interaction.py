@@ -77,9 +77,11 @@ class SpotipyClient(object):
             )
         return list(itertools.chain.from_iterable(user_saved_tracks_chunked))
 
-    def parse_users_liked_tracks(self, user_liked_songs_json: list[dict[Any,Any]]) -> list[tuple[Any, Any,Any]]:
+    def parse_users_liked_tracks(
+        self, user_liked_songs_json: list[dict[Any, Any]]
+    ) -> list[tuple[Any, Any, Any]]:
         # TODO lots of repeated code from playlist track info func
-        liked_song_info: list[tuple[Any, Any,Any]] = []
+        liked_song_info: list[tuple[Any, Any, Any]] = []
         num_tracks = len(user_liked_songs_json)
         for i in range(num_tracks):
             _track_name = user_liked_songs_json[i]["track"]["name"]
@@ -105,16 +107,27 @@ class SpotipyClient(object):
         self, playlist_id: str
     ) -> list[tuple[Any, Any, Any]]:
         # TODO named tuples for track info would be clearer
+        # TODO lots of code repetition in here
         _sp = self.authorize
-        playlist_info = (
-            []
-        )  # to hold a tuple of (track_name, artist_name, track_id) for eac htrack in playlist
-        results = _sp.playlist(playlist_id, fields="tracks,artists")
-        num_tracks = len(results["tracks"]["items"])
+        results = _sp.playlist(playlist_id, fields="tracks,next")
+        playlist_info = []
+        tracks = results["tracks"]
+        while tracks["next"]:
+            num_tracks = len(tracks["items"])
+            for i in range(num_tracks):
+                _track_name = tracks["items"][i]["track"]["name"]
+                _track_id = tracks["items"][i]["track"]["id"]
+                _artist_name = tracks["items"][i]["track"]["artists"][0][
+                    "name"
+                ]  # 2nd 0 might fail if more than one artist on track
+                _result = (_track_name, _artist_name, _track_id)
+                playlist_info.append(_result)  # type: ignore
+            tracks = _sp.next(tracks)
+        num_tracks = len(tracks["items"])
         for i in range(num_tracks):
-            _track_name = results["tracks"]["items"][i]["track"]["name"]
-            _track_id = results["tracks"]["items"][i]["track"]["id"]
-            _artist_name = results["tracks"]["items"][i]["track"]["artists"][0][
+            _track_name = tracks["items"][i]["track"]["name"]
+            _track_id = tracks["items"][i]["track"]["id"]
+            _artist_name = tracks["items"][i]["track"]["artists"][0][
                 "name"
             ]  # 2nd 0 might fail if more than one artist on track
             _result = (_track_name, _artist_name, _track_id)
@@ -126,4 +139,6 @@ class SpotipyClient(object):
 
 
 if __name__ == "__main__":
+    # _client_id, _client_secret = import_config()
+    # sp = SpotipyClient(_client_id, _client_secret)
     pass
