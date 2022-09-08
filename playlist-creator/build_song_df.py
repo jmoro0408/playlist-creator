@@ -1,11 +1,12 @@
 import itertools
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
 from spotipy_interaction import SpotipyClient, import_config, split_into_chunks
 
 
-def explode_results_list(result_list: list[tuple[Any,Any,Any]]) -> tuple:
+def explode_results_list(result_list: list[tuple[Any, Any, Any]]) -> tuple:
     track_names = [x[0] for x in result_list]
     artist_names = [x[1] for x in result_list]
     track_ids = [x[2] for x in result_list]
@@ -46,19 +47,38 @@ def build_liked_song_df(sp: SpotipyClient) -> pd.DataFrame:
 
 
 def build_playlists_df(sp: SpotipyClient) -> pd.DataFrame:
+    # TODO lots of repeated code from build_liked_song_df func
     # get users playlists
     user_playlists = sp.get_users_playlists_info()
     playlist_dfs_list = []
+    batch_size = 100  # API only allows up to 100 requests per batch
     for playlist_name, playlist_id in user_playlists.items():
+        audio_features_list = []
         playlist_tracks = sp.get_user_playlist_track_info(playlist_id)  # type: ignore
-        track_names, artist_names, track_ids = explode_results_list(playlist_tracks)
-        try:
-            audio_features = sp.get_track_features(track_ids)
-            # Audio features fails when track_id list is all None.
-            # This happens when a playlist is made up entirely of local files
-        except AttributeError:
+        playlist_tracks = [x for x in playlist_tracks if x[2] is not None]
+        if len(playlist_tracks) == 0:
             continue
-        playlist_song_df = pd.DataFrame(audio_features)
+        track_names, artist_names, track_ids = explode_results_list(playlist_tracks)
+        if len(playlist_tracks) > batch_size:
+            track_id_chunks = list(split_into_chunks(track_ids, batch_size))
+            for track_id_chunk in track_id_chunks:
+                audio_features = sp.get_track_features(track_id_chunk)
+                audio_features_list.append(audio_features)
+                # Audio features fails when track_id list is all None.
+                # This happens when a playlist is made up entirely of local files
+
+        else:
+            try:
+                audio_features = sp.get_track_features(track_ids)
+                audio_features_list.append(audio_features)
+                # Audio features fails when track_id list is all None.
+                # This happens when a playlist is made up entirely of local files
+            except AttributeError:
+                continue
+        audio_features_flattened = list(
+            itertools.chain.from_iterable(audio_features_list)
+        )
+        playlist_song_df = pd.DataFrame(audio_features_flattened)
         playlist_song_df["artist_names"] = artist_names
         playlist_song_df["track_names"] = track_names
         playlist_song_df["playlist_name"] = playlist_name
@@ -72,6 +92,6 @@ if __name__ == "__main__":
     client_id, client_secret = import_config()
     sp = SpotipyClient(client_id, client_secret)
     liked_songs_df = build_liked_song_df(sp)
-    # playlists_df = build_playlists_df(sp)
-    # liked_songs_df.to_pickle(Path("playlist-creator", "data", "liked_songs_df.pkl"))
-    # playlists_df.to_pickle(Path("playlist-creator", "data", "playlist_df.pkl"))
+    playlists_df = build_playlists_df(sp)
+    liked_songs_df.to_pickle(Path("playlist-creator", "data", "liked_songs_df.pkl"))
+    playlists_df.to_pickle(Path("playlist-creator", "data", "playlist_df.pkl"))
