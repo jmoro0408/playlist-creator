@@ -6,3 +6,9 @@ Object dtype columns have high cardinality.
     * XGBoost
     * Tensorflow NN
 
+## Metrics
+1. F1 score
+2. Confusion matrix
+3. Accuracy
+4. AUC
+
