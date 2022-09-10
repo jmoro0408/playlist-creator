@@ -2,6 +2,9 @@
 .vscode/
 config.ini
 playlist-creator/data/
+playlist-creator/modelling/catboost/classification_tutorial.ipynb
+playlist-creator/modelling/catboost/catboost_info
+playlist-recommender/playlist-creator/modelling/debugging.py
 
 
 # Byte-compiled / optimized / DLL files
