@@ -1,7 +1,8 @@
-from sklearn import metrics
 import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
+import seaborn as sns
+from sklearn import metrics
+
 
 def accuracy(y_test, y_pred):
     return metrics.accuracy_score(y_test, y_pred)
