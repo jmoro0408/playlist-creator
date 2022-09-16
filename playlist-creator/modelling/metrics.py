@@ -1,7 +1,7 @@
 from sklearn import metrics
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+import numpy as np
 
 def accuracy(y_test, y_pred):
     return metrics.accuracy_score(y_test, y_pred)
@@ -50,13 +50,13 @@ def roc_auc_score_multiclass(actual_class, pred_class, average="macro"):
 
 
 def confusion_matrix(y_test, y_pred):
-    plt.figure(figsize=(18, 8))
+    plt.figure(figsize=(18, 12))
     sns.heatmap(
         metrics.confusion_matrix(y_test, y_pred),
         annot=True,
-        xticklabels=y_test.unique(),
-        yticklabels=y_test.unique(),
-        cmap="summer",
+        xticklabels=np.unique(y_test),
+        yticklabels=np.unique(y_test),
+        cmap="YlGnBu",
     )
     plt.xlabel("Predicted Labels")
     plt.ylabel("True Labels")
