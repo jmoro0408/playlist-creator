@@ -9,5 +9,9 @@ def prep_playlist_df():
     y = df["playlist_name"]
     return X, y
 
+def invert_label_encoding(le_fitted):
+    return dict(zip(le_fitted.transform(le_fitted.classes_), le_fitted.classes_))
+
+
 if __name__ == "__main__":
     pass
