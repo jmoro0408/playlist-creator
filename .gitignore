@@ -5,7 +5,7 @@ playlist-creator/data/
 playlist-creator/modelling/catboost/classification_tutorial.ipynb
 playlist-creator/modelling/catboost/catboost_info
 playlist-recommender/playlist-creator/modelling/debugging.py
-playlist-creator/modelling/wandb test/
+playlist-creator/modelling/wandb test/wandb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
