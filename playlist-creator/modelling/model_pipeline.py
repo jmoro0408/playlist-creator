@@ -4,6 +4,7 @@ from sklearn.base import BaseEstimator
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import SGDClassifier
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 
@@ -77,6 +78,53 @@ def make_model_pipeline(X):
     )
     return pipeline
 
+
+def make_config_pipeline(X, config: dict):
+    scaler = config.get("scaler")
+    sampler = config.get("sampler")
+    featuriser = config.get("featuriser")
+    clf = config.get("classifier")
+
+    cat_features = X.select_dtypes(include=["object"]).columns.to_list()
+    num_features = [x for x in X.columns if x not in cat_features]
+
+    if (scaler is not None) and (featuriser is not None):
+        featurisation = ColumnTransformer(
+            transformers=[
+                ("num", scaler, num_features),
+                ("cat", featuriser, cat_features),
+            ]
+        )
+
+    elif scaler is None:
+        featurisation = ColumnTransformer(
+            transformers=[("cat", featuriser, cat_features)]
+        )
+    elif featuriser is None:
+        featurisation = ColumnTransformer(transformers=[("num", scaler, num_features)])
+
+    if sampler is not None:
+        pipeline = imbPipeline(
+            [
+                ("features", featurisation),
+                ("sampler", sampler),
+                ("clf", clf),
+            ]
+        )
+        return pipeline
+
+    if sampler is None:
+        pipeline = Pipeline(
+            [
+                ("features", featurisation),
+                ("clf", clf),
+            ]
+        )
+
+    return pipeline
+
+
+config = {"scaler": None, "sampler": None, "featuriser": None, "classifier": None}
 
 if __name__ == "__main__":
     pass
