@@ -5,10 +5,10 @@ import wandb
 
 import itertools
 
-from playlist_creator.modelling import model_pipeline
+from playlist_recommender.modelling import model_pipeline
 import numpy as np
 import pandas as pd
-from playlist_creator.modelling import utils
+from playlist_recommender.modelling import utils
 from imblearn.over_sampling import RandomOverSampler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
