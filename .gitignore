@@ -6,6 +6,17 @@ playlist-creator/modelling/catboost/classification_tutorial.ipynb
 playlist-creator/modelling/catboost/catboost_info
 playlist-recommender/playlist-creator/modelling/debugging.py
 playlist-creator/modelling/wandb/wandb
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+.vscode/
+playlist_creator/__pycache__/
+playlist_creator/.mypy_cache/
+playlist_creator/.pytest_cache/
+playlist_creator/modelling/__pycache__/
+spotify_recommender.egg-info/
+playlist_creator/modelling/wandb/wandb/
+playlist_creator/modelling/wandb/__pycache__/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

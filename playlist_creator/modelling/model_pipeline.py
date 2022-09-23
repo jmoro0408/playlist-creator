@@ -4,9 +4,10 @@ from sklearn.base import BaseEstimator
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import SGDClassifier
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler, MaxAbsScaler
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MaxAbsScaler, OneHotEncoder, StandardScaler
+
 
 class ClfSwitcher(BaseEstimator):
     def __init__(
@@ -123,7 +124,8 @@ def make_config_pipeline(X, config: dict):
 
     return pipeline
 
-def make_best_transformation_pipeline(X, y, test_size = 0.35):
+
+def make_best_transformation_pipeline(X, y, test_size=0.35):
     cat_features = X.select_dtypes(include=["object"]).columns.to_list()
     num_features = [x for x in X.columns if x not in cat_features]
     oversample = RandomOverSampler()
@@ -141,16 +143,13 @@ def make_best_transformation_pipeline(X, y, test_size = 0.35):
             ("features", featurisation),
         ]
     )
-    X_train, X_test,y_train, y_test = train_test_split(X, y,
-                                                   test_size=test_size,
-                                                   random_state=0,
-                                                   stratify  = y,
-                                                   shuffle = True)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=0, stratify=y, shuffle=True
+    )
     pipeline.fit(X_train, y_train)
     X_train = pipeline.transform(X_train)
     X_test = pipeline.transform(X_test)
-    return X_train, X_test,y_train, y_test
-
+    return X_train, X_test, y_train, y_test
 
 
 if __name__ == "__main__":
