@@ -18,6 +18,7 @@ spotify_recommender.egg-info/
 playlist_recommender/modelling/wandb/wandb/
 playlist_recommender/modelling/wandb/__pycache__/
 playlist_recommender/modelling/wandb/logres/wandb/
+playlist_recommender/modelling/wandb/xgboost/wandb/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
