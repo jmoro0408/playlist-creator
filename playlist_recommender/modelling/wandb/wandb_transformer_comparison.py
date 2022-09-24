@@ -1,14 +1,10 @@
+import itertools
 import os
 import sys
 
-import wandb
-
-import itertools
-
-from playlist_recommender.modelling import model_pipeline
 import numpy as np
 import pandas as pd
-from playlist_recommender.modelling import utils
+import wandb
 from imblearn.over_sampling import RandomOverSampler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -16,6 +12,8 @@ from sklearn.model_selection import cross_val_score
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import (MaxAbsScaler, MinMaxScaler, OneHotEncoder,
                                    RobustScaler, StandardScaler)
+
+from playlist_recommender.modelling import model_pipeline, utils
 
 
 def test_transformation(X, y, config):
