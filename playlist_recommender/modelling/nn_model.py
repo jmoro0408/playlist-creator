@@ -59,7 +59,7 @@ def train(config = parameter_config):
         epochs=config['epochs'],
         validation_data=(X_test, y_test))
 
-    model.save('playlist_recommender/modelling/trained_nn_model')
+    model.save('trained_nn_model')
     y_probas=model.predict(X_test)
     y_pred = tf.argmax(y_probas, axis=-1)
     f1_score = metrics.f1_score(y_test, y_pred, average="macro", zero_division=0)
@@ -83,7 +83,9 @@ def train(config = parameter_config):
     plt.ylabel("True")
     plt.title("Confusion Matrix")
     plt.tight_layout()
-    plt.savefig("playlist_recommender/modelling/confusion_matrix.png", facecolor='white', format = 'png')
+    plt.savefig("confusion_matrix.png", facecolor='white', format = 'png')
+    print(f"F1 Score: {f1_score}")
+    print(f"Accuracy: {accuracy}")
 
 
 if __name__ == "__main__":
