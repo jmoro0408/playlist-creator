@@ -21,6 +21,9 @@ playlist_recommender/modelling/wandb/logres/wandb/
 playlist_recommender/modelling/wandb/xgboost/wandb/
 playlist_recommender/modelling/wandb/KNN/wandb/
 playlist_recommender/modelling/wandb/neural_net/wandb/
+playlist_recommender/modelling/wandb/neural_net/wandb/
+wandb/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
