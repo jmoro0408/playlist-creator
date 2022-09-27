@@ -23,6 +23,7 @@ playlist_recommender/modelling/wandb/KNN/wandb/
 playlist_recommender/modelling/wandb/neural_net/wandb/
 playlist_recommender/modelling/wandb/neural_net/wandb/
 wandb/
+playlist_recommender/modelling/trained_nn_model/
 
 
 # Byte-compiled / optimized / DLL files
