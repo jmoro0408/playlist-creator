@@ -25,7 +25,7 @@ y_test = le.transform(y_test)
 le_dict = dict(zip(le.transform(le.classes_),le.classes_))
 
 parameter_config = {'batch_size': 32,
-                'epochs': 3,
+                'epochs': 500,
                 'fc_layer_size': 256,
                 'learning_rate': 1e-05}
 
@@ -73,7 +73,7 @@ def train(config = parameter_config):
 
     cm = tf.math.confusion_matrix(y_test, y_pred)
     cm = cm/cm.numpy().sum(axis=1)[:, tf.newaxis]
-    plt.figure(figsize=(18, 12))
+    plt.figure(figsize=(26, 18))
     sns.heatmap(
         cm, annot=True,
         xticklabels=le.classes_,
