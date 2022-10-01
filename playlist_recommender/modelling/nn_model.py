@@ -1,18 +1,18 @@
 import numpy as np
-import wandb
 
 from playlist_recommender.modelling import model_pipeline
 from playlist_recommender.modelling import utils
 from sklearn import metrics
-from keras.models import Sequential
-from keras.layers import Dense
 from sklearn.preprocessing import LabelEncoder
-from wandb.keras import WandbCallback
 import tensorflow as tf
 from tensorflow import keras
 from keras import layers
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.utils.class_weight import compute_class_weight
+from keras.callbacks import EarlyStopping
+
+
 
 X, y = utils.prep_playlist_df()
 X_train, X_test, y_train, y_test = model_pipeline.make_best_transformation_pipeline(
@@ -23,9 +23,15 @@ le.fit(y_train)
 y_train = le.transform(y_train)
 y_test = le.transform(y_test)
 le_dict = dict(zip(le.transform(le.classes_),le.classes_))
+class_weights = compute_class_weight(class_weight = 'balanced',
+                                                 classes = np.unique(y_train),
+                                                 y = y_train)
+class_weight_dict = dict(enumerate(class_weights))
+es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=200)
+
 
 parameter_config = {'batch_size': 32,
-                'epochs': 500,
+                'epochs': 2000,
                 'fc_layer_size': 256,
                 'learning_rate': 1e-05}
 
@@ -57,19 +63,15 @@ def train(config = parameter_config):
         X_train,
         y_train,
         epochs=config['epochs'],
-        validation_data=(X_test, y_test))
+        validation_data=(X_test, y_test),
+        class_weight = class_weight_dict,
+        callbacks = [es])
 
     model.save('trained_nn_model')
     y_probas=model.predict(X_test)
     y_pred = tf.argmax(y_probas, axis=-1)
     f1_score = metrics.f1_score(y_test, y_pred, average="macro", zero_division=0)
     accuracy = metrics.accuracy_score(y_test, y_pred)
-    precision = metrics.precision_score(
-        y_test, y_pred, average="macro", zero_division=0
-    )
-    recall = metrics.recall_score(y_test, y_pred, average="macro")
-    y_pred_names = le.inverse_transform(y_pred)
-    y_test_names= le.inverse_transform(y_test)
 
     cm = tf.math.confusion_matrix(y_test, y_pred)
     cm = cm/cm.numpy().sum(axis=1)[:, tf.newaxis]
