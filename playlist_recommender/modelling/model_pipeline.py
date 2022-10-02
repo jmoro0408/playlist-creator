@@ -7,7 +7,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MaxAbsScaler, OneHotEncoder, StandardScaler
-
+import joblib
 
 class ClfSwitcher(BaseEstimator):
     def __init__(
