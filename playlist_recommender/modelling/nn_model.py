@@ -30,8 +30,8 @@ class_weight_dict = dict(enumerate(class_weights))
 es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=200)
 
 
-parameter_config = {'batch_size': 16,
-                'epochs': 2000,
+parameter_config = {'batch_size': 32,
+                'epochs': 550,
                 'fc_layer_size': 256,
                 'learning_rate': 1e-05}
 
@@ -65,8 +65,7 @@ def train(config = parameter_config):
         y_train,
         epochs=config['epochs'],
         validation_data=(X_test, y_test),
-        class_weight = class_weight_dict,
-        callbacks = [es])
+        class_weight = class_weight_dict,)
 
     model.save('trained_nn_model')
     y_probas=model.predict(X_test)
