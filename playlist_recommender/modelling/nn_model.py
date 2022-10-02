@@ -30,7 +30,7 @@ class_weight_dict = dict(enumerate(class_weights))
 es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=200)
 
 
-parameter_config = {'batch_size': 32,
+parameter_config = {'batch_size': 16,
                 'epochs': 2000,
                 'fc_layer_size': 256,
                 'learning_rate': 1e-05}
@@ -41,6 +41,7 @@ def build_model(fc_layer_size=15):
     return keras.Sequential(
         [
             keras.Input(shape=input_shape),
+            layers.Dense(fc_layer_size, activation="relu"),
             layers.Dense(fc_layer_size, activation="relu"),
             layers.Dense(fc_layer_size, activation="relu"),
             layers.Dense(fc_layer_size, activation="relu"),
