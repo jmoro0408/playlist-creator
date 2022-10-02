@@ -5,7 +5,6 @@ playlist_recommender/data/
 playlist_recommender/modelling/catboost/classification_tutorial.ipynb
 playlist_recommender/modelling/catboost/catboost_info
 playlist_recommender/playlist-creator/modelling/debugging.py
-playlist_recommender/modelling/wandb/wandb
 __pycache__/
 .mypy_cache/
 .pytest_cache/
