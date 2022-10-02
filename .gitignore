@@ -25,6 +25,7 @@ wandb/
 playlist_recommender/modelling/trained_nn_model/
 trained_nn_model
 playlist_recommender/modelling/pipeline.pkl
+playlist_recommender/modelling/confusion_matrix.png
 
 
 # Byte-compiled / optimized / DLL files
