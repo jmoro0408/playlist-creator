@@ -125,11 +125,12 @@ def make_config_pipeline(X, config: dict):
     return pipeline
 
 
-def make_best_transformation_pipeline(X, y, test_size=0.35):
+def make_best_transformation_pipeline(X, y, test_size=0.35, oversample = False):
     cat_features = X.select_dtypes(include=["object"]).columns.to_list()
     num_features = [x for x in X.columns if x not in cat_features]
-    oversample = RandomOverSampler()
-    X, y = oversample.fit_resample(X, y)
+    if oversample:
+        oversample = RandomOverSampler()
+        X, y = oversample.fit_resample(X, y)
     numeric_transformer = MaxAbsScaler()
     categorical_transformer = OneHotEncoder(handle_unknown="ignore")
     featurisation = ColumnTransformer(
@@ -147,6 +148,8 @@ def make_best_transformation_pipeline(X, y, test_size=0.35):
         X, y, test_size=test_size, random_state=0, stratify=y, shuffle=True
     )
     pipeline.fit(X_train, y_train)
+    joblib.dump(pipeline, "pipeline.pkl")
+    print('pipeline dumped')
     X_train = pipeline.transform(X_train)
     X_test = pipeline.transform(X_test)
     return X_train, X_test, y_train, y_test
