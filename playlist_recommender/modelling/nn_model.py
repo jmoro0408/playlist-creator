@@ -11,7 +11,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.utils.class_weight import compute_class_weight
 from keras.callbacks import EarlyStopping
-
+import json
 
 
 X, y = utils.prep_playlist_df()
@@ -23,6 +23,9 @@ le.fit(y_train)
 y_train = le.transform(y_train)
 y_test = le.transform(y_test)
 le_dict = dict(zip(le.transform(le.classes_),le.classes_))
+le_dict_json = {str(key): str(value) for key, value in le_dict.items()}
+with open('label_encoding.json', 'w') as fp:
+    json.dump(le_dict_json, fp)
 class_weights = compute_class_weight(class_weight = 'balanced',
                                                  classes = np.unique(y_train),
                                                  y = y_train)
