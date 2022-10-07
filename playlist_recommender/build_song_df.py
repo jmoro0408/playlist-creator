@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-from spotipy_interaction import SpotipyClient, import_config, split_into_chunks
+from playlist_recommender.spotipy_interaction import SpotipyClient, import_config, split_into_chunks
 
 
 def explode_results_list(result_list: list[tuple[Any, Any, Any]]) -> tuple:

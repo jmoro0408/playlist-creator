@@ -2,7 +2,7 @@ import configparser
 from pathlib import Path
 
 import pytest
-from spotipy_interaction import SpotipyClient
+from playlist_recommender.spotipy_interaction import SpotipyClient
 
 
 @pytest.fixture

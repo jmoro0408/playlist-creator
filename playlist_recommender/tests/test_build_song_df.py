@@ -3,9 +3,8 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
-from build_song_df import build_liked_song_df, build_playlists_df
-from spotipy_interaction import SpotipyClient
-
+from playlist_recommender.build_song_df import build_liked_song_df, build_playlists_df
+from playlist_recommender.spotipy_interaction import SpotipyClient
 
 @pytest.fixture
 def client_fixture():
