@@ -3,10 +3,18 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-from playlist_recommender.spotipy_interaction import SpotipyClient, import_config, split_into_chunks
+from playlist_recommender.spotipy_interaction import SpotipyClient, read_client_id_and_secret, split_into_chunks
 
 
 def explode_results_list(result_list: list[tuple[Any, Any, Any]]) -> tuple:
+    """breaks out the track_names, artist_names, track_ids.
+    The original results list is of structure:
+    list(tuple(track_name, artist_name, track_id))
+    This func just breaks out the list of tuples into seperate lists.
+
+    Returns:
+        _type_: three lists of track_name, artist_name, track_ids
+    """
     track_names = [x[0] for x in result_list]
     artist_names = [x[1] for x in result_list]
     track_ids = [x[2] for x in result_list]
@@ -89,7 +97,7 @@ def build_playlists_df(sp: SpotipyClient) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    client_id, client_secret = import_config()
+    client_id, client_secret = read_client_id_and_secret()
     sp = SpotipyClient(client_id, client_secret)
     liked_songs_df = build_liked_song_df(sp)
     playlists_df = build_playlists_df(sp)
