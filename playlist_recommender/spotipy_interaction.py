@@ -7,19 +7,29 @@ import spotipy  # type: ignore
 from spotipy.oauth2 import SpotifyOAuth  # type: ignore
 
 # TODO Authorization flow is messy
-# TODO spotipy client class does too much
 
 
-def import_config() -> tuple:
+def read_client_id_and_secret(config_file: str = "config.ini") -> tuple:
+    """read in the spotify client ID and secret.
+    These should be stored in a config.ini file with the structure:
+    [SPOTIFY]
+    SPOTIPY_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxx
+    SPOTIPY_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxx
+    Args:
+        config_file (str, optional): path to config file. Defaults to "config.ini".
+
+    Returns:
+        tuple: client_id and client_secret as read from the config file
+    """
     config = configparser.ConfigParser()
     root_dir = Path(__file__).resolve().parents[0]
-    config.read(Path(root_dir, "config.ini"))
+    config.read(Path(root_dir, config_file))
     _client_id = config["SPOTIFY"]["SPOTIPY_CLIENT_ID"]
     _client_secret = config["SPOTIFY"]["SPOTIPY_CLIENT_SECRET"]
     return _client_id, _client_secret
 
 
-def split_into_chunks(list_to_split, chunk_size):
+def split_into_chunks(list_to_split:list, chunk_size:int):
     """
     This is stolen from a SO post:
     https://stackoverflow.com/questions/2130016/
@@ -34,12 +44,22 @@ def split_into_chunks(list_to_split, chunk_size):
 
 
 class SpotipyClient(object):
-    def __init__(self, client_id: str, client_secret: str):
+    def __init__(self, client_id: str, client_secret: str) -> Any:
         self.client_id = client_id
         self.client_secret = client_secret
         self.authorize = self.spotify_auth()
 
-    def spotify_auth(self, scope="user-library-read"):
+    def spotify_auth(self, scope: str ="user-library-read"):
+        """Returns an authorized spotipy object for the given scope.
+
+        Args:
+            scope (str, optional): authorization scope. Defaults to "user-library-read".
+            Available scopes can be found at:
+            https://developer.spotify.com/documentation/general/guides/authorization/scopes/
+
+        Returns:
+            Any: Authorized spotify client
+        """
         redirect_uri = "http://localhost:8888/callback"
         return spotipy.Spotify(
             auth_manager=SpotifyOAuth(
@@ -51,6 +71,11 @@ class SpotipyClient(object):
         )
 
     def get_users_all_liked_tracks(self) -> list[dict]:
+        """retries a list of all the user's liked tracks.
+
+        Returns:
+            list[dict]: users liked tracks with track information
+        """
         sp = self.authorize
         results = sp.current_user_saved_tracks()
         tracks = results["items"]
@@ -60,6 +85,14 @@ class SpotipyClient(object):
         return tracks
 
     def get_user_liked_tracks_limited(self, limit: int = 10) -> list[dict]:
+        """gets a subset of the users liked tracks up to a specified limit
+
+        Args:
+            limit (int, optional): how many tracks to grab. Defaults to 10.
+
+        Returns:
+            list[dict]: users liked tracks with track information
+        """
         sp = self.authorize
         track_limit = 50  # set by spotify API
         num_batches, leftovers = divmod(limit, track_limit)  # 50 song paginated result
@@ -88,12 +121,18 @@ class SpotipyClient(object):
             _track_id = user_liked_songs_json[i]["track"]["id"]
             _artist_name = user_liked_songs_json[i]["track"]["artists"][0][
                 "name"
-            ]  # 0 may fail is more than 1 artist
+            ]  # 0 may fail if more than 1 artist
             _result = (_track_name, _artist_name, _track_id)
             liked_song_info.append(_result)
         return liked_song_info
 
     def get_users_playlists_info(self) -> dict:
+        """grabs the playlist info for each playlist
+        that the user has created
+
+        Returns:
+            dict: dict of playlist info
+        """
         _sp = self.authorize
         playlists = _sp.current_user_playlists()
         user_id = _sp.me()["id"]
@@ -107,7 +146,6 @@ class SpotipyClient(object):
         self, playlist_id: str
     ) -> list[tuple[Any, Any, Any]]:
         # TODO named tuples for track info would be clearer
-        # TODO lots of code repetition in here
         _sp = self.authorize
         results = _sp.playlist(playlist_id, fields="tracks,next")
         playlist_info = []
@@ -135,6 +173,14 @@ class SpotipyClient(object):
         return playlist_info
 
     def get_track_features(self, track_ids: list):
+        """grabs spotify features
+
+        Args:
+            track_ids (list): track ids to get info for
+
+        Returns:
+            _type_: list of audio features for each track
+        """
         return self.authorize.audio_features(tracks=track_ids)
 
 
