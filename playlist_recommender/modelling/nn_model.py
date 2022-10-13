@@ -61,7 +61,9 @@ def get_class_weights(y_train: np.ndarray) -> dict:
     return dict(enumerate(class_weights))
 
 
-def build_model(output_layer_size: int, fc_layer_size: int = 15) -> keras.Sequential:
+def build_model(
+    output_layer_size: int, input_shape: int, fc_layer_size: int = 15
+) -> keras.Sequential:
     """generate a dense neural net with 5 layers with neurons
     of fc_layer_size
 
@@ -71,7 +73,6 @@ def build_model(output_layer_size: int, fc_layer_size: int = 15) -> keras.Sequen
     Returns:
         Keras.Sequential: Keras sequential model
     """
-    input_shape = X_train.shape[1]
     return keras.Sequential(
         [
             keras.Input(shape=input_shape),
@@ -84,7 +85,12 @@ def build_model(output_layer_size: int, fc_layer_size: int = 15) -> keras.Sequen
     )
 
 
-def train(config: dict) -> np.ndarray:
+def train(X_train:np.ndarray,
+          X_test:np.ndarray,
+          y_train:np.ndarray,
+          y_test:np.ndarray,
+          class_weights:dict,
+          config: dict) -> np.ndarray:
     """Trains the neural net as built in build_model and parameters
     given in the config argument.
 
@@ -99,6 +105,7 @@ def train(config: dict) -> np.ndarray:
     """
     keras.backend.clear_session()
     model = build_model(
+        input_shape=X_train.shape[1],
         output_layer_size=config["output_layer_size"],
         fc_layer_size=config["fc_layer_size"],
     )
@@ -112,7 +119,7 @@ def train(config: dict) -> np.ndarray:
         y_train,
         epochs=config["epochs"],
         validation_data=(X_test, y_test),
-        class_weight=class_weight_dict,
+        class_weight=class_weights,
         callbacks=[es],
     )
 
@@ -155,7 +162,7 @@ def plot_confusion_matrix(
     print(f"Accuracy: {accuracy}")
 
 
-if __name__ == "__main__":
+def main():
     X_train, X_test, y_train, y_test = make_X_y()
     y_train, y_test = label_encode_target(y_train, y_test)
     class_weight_dict = get_class_weights(y_train)
@@ -167,5 +174,13 @@ if __name__ == "__main__":
         "output_layer_size": len(class_weight_dict),
     }
 
-    y_pred = train(config=parameter_config)
-    plot_confusion_matrix(y_test, y_pred, encoding_dict=class_weight_dict)
+    y_pred = train(
+        X_train, X_test, y_train, y_test, class_weight_dict, parameter_config
+    )
+    with open("label_encoding.json", encoding="utf-8") as encoding_json:
+        encoding_dict = json.loads(encoding_json.read())
+    plot_confusion_matrix(y_test, y_pred, encoding_dict=encoding_dict)
+
+
+if __name__ == "__main__":
+    main()
