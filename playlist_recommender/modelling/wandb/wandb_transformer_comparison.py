@@ -1,3 +1,12 @@
+"""
+Compares logisitic regression and random forest classifiers
+for various different transformations including:
+1. standard scalar
+2. maxabs scalar
+3. one hot encoding
+
+with tracking with weights and biases
+"""
 import itertools
 
 import numpy as np
