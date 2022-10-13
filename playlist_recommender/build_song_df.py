@@ -3,7 +3,9 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-from playlist_recommender.spotipy_interaction import SpotipyClient, read_client_id_and_secret, split_into_chunks
+
+from playlist_recommender.spotipy_interaction import (
+    SpotipyClient, read_client_id_and_secret, split_into_chunks)
 
 
 def explode_results_list(result_list: list[tuple[Any, Any, Any]]) -> tuple:
@@ -23,7 +25,13 @@ def explode_results_list(result_list: list[tuple[Any, Any, Any]]) -> tuple:
 
 def build_liked_song_df(sp: SpotipyClient) -> pd.DataFrame:
     """Return a dataframe with the users liked tracks,
-    with track name, artist, duration, and audio features for each track.
+    with track name, artist, and audio features for each track
+    present in the users 'Liked songs'.
+
+    +----------------+-------------+------------+
+    | audio_features | artist_name | track_name |
+    +----------------+-------------+------------+
+
     The web API only allows audio features requests of up to 100 tracks
     at a time, so the full liked songs json has to be split into 100
     track chunks before querying, then combined together.
@@ -55,8 +63,19 @@ def build_liked_song_df(sp: SpotipyClient) -> pd.DataFrame:
 
 
 def build_playlists_df(sp: SpotipyClient) -> pd.DataFrame:
-    # TODO lots of repeated code from build_liked_song_df func
-    # get users playlists
+    """builds the main playlist dataframe.
+    For each track in each playlist the user has created, the function creates
+    a dataframe with structure:
+    +----------------+-------------+------------+---------------+
+    | audio_features | artist_name | track_name | playlist_name |
+    +----------------+-------------+------------+---------------+
+
+    Args:
+        sp (SpotipyClient): Athorized spotipy client object
+
+    Returns:
+        pd.DataFrame: df with track features for each user created playlist
+    """
     user_playlists = sp.get_users_playlists_info()
     playlist_dfs_list = []
     batch_size = 100  # API only allows up to 100 requests per batch
@@ -101,5 +120,5 @@ if __name__ == "__main__":
     sp = SpotipyClient(client_id, client_secret)
     liked_songs_df = build_liked_song_df(sp)
     playlists_df = build_playlists_df(sp)
-    liked_songs_df.to_pickle(Path("playlist-creator", "data", "liked_songs_df.pkl"))
-    playlists_df.to_pickle(Path("playlist-creator", "data", "playlist_df.pkl"))
+    liked_songs_df.to_pickle(Path("playlist-recommender", "data", "liked_songs_df.pkl"))
+    playlists_df.to_pickle(Path("playlist-recommender", "data", "playlist_df.pkl"))

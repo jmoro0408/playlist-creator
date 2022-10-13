@@ -1,18 +1,15 @@
 import itertools
-import os
-import sys
 
 import numpy as np
 import pandas as pd
-import wandb
-from imblearn.over_sampling import RandomOverSampler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
-from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import (MaxAbsScaler, MinMaxScaler, OneHotEncoder,
                                    RobustScaler, StandardScaler)
+from sklearn.utils import compute_class_weight
 
+import wandb
 from playlist_recommender.modelling import model_pipeline, utils
 
 
@@ -25,21 +22,22 @@ def test_transformation(X, y, config):
 
 
 X, y = utils.prep_playlist_df()
+class_weights = compute_class_weight(class_weight = 'balanced',
+                                                 classes = np.unique(y),
+                                                 y = y)
+class_weight_dict_labels = dict(zip(np.unique(y), class_weights))
 
 scalers = [None, StandardScaler(), MinMaxScaler(), RobustScaler(), MaxAbsScaler()]
-samplers = [None, RandomOverSampler()]
-featurisers = [OneHotEncoder(handle_unknown="ignore")]  # None doesn't work well
+featurisers = [OneHotEncoder(handle_unknown="ignore")]
 classifiers = [
-    LogisticRegression(max_iter=1200),
-    MLPClassifier(max_iter=1000),
-    RandomForestClassifier(),
+    LogisticRegression(max_iter=1200,class_weight = class_weight_dict_labels),
+    RandomForestClassifier(class_weight = class_weight_dict_labels),
 ]
 
-total_config = len(scalers) * len(samplers) * len(featurisers) * len(classifiers)
+total_config = len(scalers)  * len(featurisers) * len(classifiers)
 
 config_permuation_builer = {
     "scaler": scalers,
-    "sampler": samplers,
     "featuriser": featurisers,
     "classifier": classifiers,
 }
@@ -47,7 +45,7 @@ _keys, _values = zip(*config_permuation_builer.items())
 config_permutations = [dict(zip(_keys, v)) for v in itertools.product(*_values)]
 
 wandb.init(
-    project="spotify-recommender", tags=["transform"], name="transformer comparisons"
+    project="spotify-recommender", tags=["transform"], name="transformer comparisons - class weights"
 )
 
 _values_list = []
@@ -62,7 +60,7 @@ for idx, config in enumerate(config_permutations):
     print(f"{idx+1} of {total_config} configurations.")
 
 config_df = pd.DataFrame(
-    _values_list, columns=["scaler", "sampler", "featuriser", "classifier", "f1"]
+    _values_list, columns=["scaler", "featuriser", "classifier", "f1"]
 )
 wandb.log({"config": config_df})
 wandb.finish()

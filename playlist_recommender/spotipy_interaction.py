@@ -29,7 +29,7 @@ def read_client_id_and_secret(config_file: str = "config.ini") -> tuple:
     return _client_id, _client_secret
 
 
-def split_into_chunks(list_to_split:list, chunk_size:int):
+def split_into_chunks(list_to_split: list, chunk_size: int):
     """
     This is stolen from a SO post:
     https://stackoverflow.com/questions/2130016/
@@ -49,7 +49,7 @@ class SpotipyClient(object):
         self.client_secret = client_secret
         self.authorize = self.spotify_auth()
 
-    def spotify_auth(self, scope: str ="user-library-read"):
+    def spotify_auth(self, scope: str = "user-library-read"):
         """Returns an authorized spotipy object for the given scope.
 
         Args:

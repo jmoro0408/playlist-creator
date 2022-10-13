@@ -2,6 +2,7 @@ import configparser
 from pathlib import Path
 
 import pytest
+
 from playlist_recommender.spotipy_interaction import SpotipyClient
 
 
