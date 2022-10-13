@@ -19,9 +19,20 @@ def make_X_y() -> Pipeline:
     return model_pipeline.make_best_transformation_pipeline(X, y)
 
 
-def label_encode_y(
+def label_encode_target(
     y_train: np.ndarray, y_test: np.ndarray, save_encoding_json: bool = True
-):
+) -> tuple[np.ndarray, np.ndarray]:
+    """label encodes the target features.
+    Optionally can save the encoding mapping as a json for inverse transformation.
+
+    Args:
+        y_train (np.ndarray): training target data
+        y_test (np.ndarray): testing target data
+        save_encoding_json (bool, optional): save encoding json. Defaults to True.
+
+    Returns:
+        tuple[np.ndarray,np.ndarray]: encoded train and test arrays
+    """
     le = LabelEncoder()
     le.fit(y_train)
     if save_encoding_json:
@@ -35,6 +46,15 @@ def label_encode_y(
 
 
 def get_class_weights(y_train: np.ndarray) -> dict:
+    """calculates class weights for training data and returns mapping with
+    the weight for each target feature.
+
+    Args:
+        y_train (np.ndarray): train target features array
+
+    Returns:
+        dict: mapping of weights for each target label
+    """
     class_weights = compute_class_weight(
         class_weight="balanced", classes=np.unique(y_train), y=y_train
     )
@@ -137,7 +157,7 @@ def plot_confusion_matrix(
 
 if __name__ == "__main__":
     X_train, X_test, y_train, y_test = make_X_y()
-    y_train, y_test = label_encode_y(y_train, y_test)
+    y_train, y_test = label_encode_target(y_train, y_test)
     class_weight_dict = get_class_weights(y_train)
     parameter_config = {
         "batch_size": 32,
