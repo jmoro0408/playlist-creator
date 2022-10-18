@@ -11,6 +11,8 @@ The goal of this project is to suggest my liked Spotify tracks to my playlists, 
 ## Data Gathering
 
 I used [Spotipy](https://spotipy.readthedocs.io/en/master/) to build two seperate dataframes. The first consists of all tracks from each playlist I have created, along with [audio features](https://developer.spotify.com/documentation/web-api/reference/#/operations/get-several-audio-features) such as loudness, danceability, energy, and duration, along with the playlist and artist titles.
+
+
 This "playlist_df" had 2417 songs in total, with 2055 unique songs.
 
 The second dataframe contains the same audio features and artist name for each track in my liked songs (667 total unique songs).
@@ -27,6 +29,8 @@ In order to create a useful algorithm that doesn't just predict that every songs
 ## Weight and Biases
 
 I used [Weights and Biases](https://wandb.ai/) (WandB) to track various configurations, this allowed for easy graphical tracking of each run's configuration and final metrics.
+
+![WandB example experiment result](images/wand_example.png)
 
 Accuracy was used in conjunction with F1 score to determine the best configuration, from:
 * Different transformation techniques:
@@ -94,4 +98,5 @@ Overall the algorithm performed well and definitely helped me bulk out some of m
 
 * Try hashing as a transformation technique
 * Make available for other users - however the performance would be entirely dependent on their playlist style, quantity of playlists, and quantity of songs per playlist.
+* Include track year as a training feature, as some playlists are skewed towards certain eras.
 
