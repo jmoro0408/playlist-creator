@@ -61,7 +61,7 @@ def get_class_weights(y_train: np.ndarray) -> dict:
 
 
 def build_model(
-    output_layer_size: int, input_shape: int, fc_layer_size: int = 15, plot_model : bool = False
+    output_layer_size: int, input_shape: int, fc_layer_size: int = 15, save_model_plot : bool = False
 ) -> keras.Sequential:
     """generate a dense neural net with 5 layers with neurons
     of fc_layer_size
@@ -82,7 +82,7 @@ def build_model(
             layers.Dense(output_layer_size, activation="softmax"),
         ]
     )
-    if plot_model:
+    if save_model_plot:
         keras.utils.plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True, rankdir = 'LR')
     return model
 
@@ -110,7 +110,7 @@ def train(X_train:np.ndarray,
         input_shape=X_train.shape[1],
         output_layer_size=config["output_layer_size"],
         fc_layer_size=config["fc_layer_size"],
-        plot_model = config['plot_model']
+        save_model_plot = config['save_model_plot']
     )
 
     opt = tf.keras.optimizers.Adam(learning_rate=config["learning_rate"])
@@ -175,7 +175,7 @@ def main():
         "fc_layer_size": 256,
         "learning_rate": 1e-05,
         "output_layer_size": len(class_weight_dict),
-        'plot_model' : True
+        'save_model_plot' : True
     }
 
     y_pred = train(
