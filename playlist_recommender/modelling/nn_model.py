@@ -13,7 +13,6 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.class_weight import compute_class_weight
 from tensorflow import keras
 
-
 def make_X_y() -> Pipeline:
     X, y = utils.prep_playlist_df()
     return model_pipeline.make_best_transformation_pipeline(X, y)
@@ -62,7 +61,7 @@ def get_class_weights(y_train: np.ndarray) -> dict:
 
 
 def build_model(
-    output_layer_size: int, input_shape: int, fc_layer_size: int = 15
+    output_layer_size: int, input_shape: int, fc_layer_size: int = 15, plot_model : bool = False
 ) -> keras.Sequential:
     """generate a dense neural net with 5 layers with neurons
     of fc_layer_size
@@ -73,7 +72,7 @@ def build_model(
     Returns:
         Keras.Sequential: Keras sequential model
     """
-    return keras.Sequential(
+    model =  keras.Sequential(
         [
             keras.Input(shape=input_shape),
             layers.Dense(fc_layer_size, activation="relu"),
@@ -83,6 +82,9 @@ def build_model(
             layers.Dense(output_layer_size, activation="softmax"),
         ]
     )
+    if plot_model:
+        keras.utils.plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True, rankdir = 'LR')
+    return model
 
 
 def train(X_train:np.ndarray,
@@ -108,6 +110,7 @@ def train(X_train:np.ndarray,
         input_shape=X_train.shape[1],
         output_layer_size=config["output_layer_size"],
         fc_layer_size=config["fc_layer_size"],
+        plot_model = config['plot_model']
     )
 
     opt = tf.keras.optimizers.Adam(learning_rate=config["learning_rate"])
@@ -123,7 +126,7 @@ def train(X_train:np.ndarray,
         callbacks=[es],
     )
 
-    model.save("trained_nn_model")
+    # model.save("trained_nn_model")
     y_probas = model.predict(X_test)
     y_pred = tf.argmax(y_probas, axis=-1)
     return y_pred
@@ -172,6 +175,7 @@ def main():
         "fc_layer_size": 256,
         "learning_rate": 1e-05,
         "output_layer_size": len(class_weight_dict),
+        'plot_model' : True
     }
 
     y_pred = train(
